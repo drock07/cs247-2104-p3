@@ -1,3 +1,29 @@
-<h1>Boy, I told you no one gots the Rage</h1>
+<div class="row p3-chatroom">
+	<div class="col-xs-12 col-md-9 chat-view">
 
-{{ chatroom }}
+		<div class="header">
+			<a ui-sref="home">&lt;-- Back</a> Chatroom id: {{ chatroomId }}
+		</div>
+
+		<div class="stream-wrapper">
+			<div class="stream">
+				<p ng-repeat="message in chatroom.stream">{{ message.username }}: {{ message.m }}</p>
+			</div>
+		</div>
+
+
+		<div class="input-area">
+			<div class="input-wrapper">
+				<input type="text" ng-model="chatMessage" ng-enter="sendChatMessage()" />
+			</div>
+			<div class="button-wrapper">
+				<button ng-click="sendChatMessage()">Send</button>
+			</div>
+		</div>
+	</div>
+
+	<div class="visible-md visible-lg col-md-3 ">
+		<div chat-video></div>
+		<!-- <p ng-repeat="(user, value) in chatroom.users">{{ user }}</p> -->
+	</div>
+</div>

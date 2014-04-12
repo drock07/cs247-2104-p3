@@ -1,14 +1,165 @@
 /* Variables */
-$purple: #53324F;
-$green: #668D6E;
-$yellow: #F2E0A0;
+$purple: #955BA5;
+$green: #4EBA6F;
+$yellow: #F0C419;
 $orange: #F19B7A;
-$red: #F0756E;
+$red: #F15A5A;
+$blue: #2D95BF;
+$white: #fefefe;
+$black: #343434;
+$gray: #EEEEEE;
+$gray-dark: darken($gray, 15%);
+
+$base_color: $purple;
+
+/* Fonts */
+@import url(http://fonts.googleapis.com/css?family=Cabin+Condensed);
+
+
+html, body {
+  width: 100%;
+  height: 100%;
+}
 
 body {
-  background-color: $green;
+  font-family: 'Cabin Condensed', sans-serif;
+  font-size: 20px;
+  color: $white;
+
+  background-color: $base_color;
+}
+
+a {
+  color: $white;
 }
 
 .container {
-  background-color: $yellow;
+  // background-color: $white;
+  height: 100%;
+}
+
+.centered-text {
+  text-align: center;
+}
+
+.p3-chatroom {
+  height: 100%;
+
+  .chat-view {
+    height: 100%;
+    position: relative;
+    // background-color: $white;
+    overflow: hidden;
+
+    .header {
+      height: 30px;
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+
+      text-align: center;
+
+      color: $white;
+      background-color: $base_color;
+
+      a {
+        color: $white;
+        float: left;
+      }
+    }
+
+    .stream-wrapper {
+      width: 100%;
+      height: 100%;
+      padding-top: 30px;
+      padding-bottom: 100px;
+
+      .stream {
+        width: 100%;
+        height: 100%;
+        overflow-y: auto;
+
+        p {
+          // background-color: $green;
+        }
+      }
+    }
+
+    .input-area {
+      // width: 100%;
+      height: 100px;
+
+      position: absolute;
+      // left: 15px;
+      // right: 15px;
+      left: 0;
+      right: 0;
+      bottom: 0;
+
+      // background-color: $gray;
+
+      .input-wrapper {
+        width: 100%;
+        height: 100%;
+
+        padding: 5px;
+        padding-right: 100px;
+
+        input {
+          width: 100%;
+          height: 100%;
+
+          color: $black;
+
+          border-radius: 8px;
+          border: 1px solid $gray-dark;
+          // border: none;
+
+          padding: 8px;
+
+          &:focus {
+            // outline: $blue solid medium;
+            outline: none;
+          }
+        }
+      }
+
+      .button-wrapper {
+        width: 100px;
+        height: 100%;
+
+        position: absolute;
+        top: 0;
+        right: 0;
+
+        padding: 5px;
+
+        button {
+          width: 100%;
+          height: 100%;
+
+          // border: 1px solid $gray-dark;
+          border: none;
+          border-radius: 8px;
+
+          background-color: $green;
+
+          &:hover {
+            background-color: lighten($gray-dark, 5%);
+          }
+
+          &:active {
+            background-color: $gray-dark;
+          }
+
+          &:focus {
+            // outline: $blue solid thin;
+            outline: none;
+          }
+        }
+      }
+    }
+  }
+
 }

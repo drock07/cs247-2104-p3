@@ -1,7 +1,12 @@
-<h1>Ain't no one gots the Rage</h1>
+<div class="row centered-text">
+	<h1>Chat App</h1>
+	<div class="col-xs-12 col-md-4 col-md-offset-4">
 
-<ul>
-	<li ng-repeat="(name, chatroom) in chatrooms">
-		<a ui-sref="chatroom({chatroomId: name})">Go To Chat</a>
-	</li>
-</ul>
+		<ul>
+			<li ng-repeat="(id, chatroom) in chatrooms">
+				<a ui-sref="chatroom({chatroomId: id})">{{ id }}</a>
+			</li>
+		</ul>
+	</div>
+</div>
+
