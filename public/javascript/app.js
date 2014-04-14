@@ -8,7 +8,7 @@ p3App.config(['$stateProvider', '$locationProvider', '$urlRouterProvider',
 	function($stateProvider, $locationProvider, $urlRouterProvider) {
 		$locationProvider.html5Mode(true);
 
-		$urlRouterProvider.otherwise('/');
+		$urlRouterProvider.otherwise('/signin');
 
 		$stateProvider.
 			state('home', {
@@ -20,15 +20,46 @@ p3App.config(['$stateProvider', '$locationProvider', '$urlRouterProvider',
 				url: '/chatroom/:chatroomId',
 				templateUrl: '/partials/chatroom.html',
 				controller: 'ChatroomCtrl'
+			})
+			.state("signin", {
+			    url: "/signin",
+			    onEnter: function($stateParams, $state, $modal, $resource) {
+			        // $modal.open({
+			        //     templateUrl: "items/add",
+			        //     resolve: {
+			        //       item: function() { new Item(123).get(); }
+			        //     },
+			        //     controller: ['$scope', 'item', function($scope, item) {
+			        //       $scope.dismiss = function() {
+			        //         $scope.$dismiss();
+			        //       };
+
+			        //       $scope.save = function() {
+			        //         item.update().then(function() {
+			        //           $scope.$close(true);
+			        //         });
+			        //       };
+			        //     }]
+			        // }).result.then(function(result) {
+			        //     if (result) {
+			        //         return $state.transitionTo("items");
+			        //     }
+			        // });
+			    }
 			});
 	}
 ]);
 
 p3App.run(['$rootScope', 'Chatrooms',
 	function($rootScope, $chatrooms) {
+
+		$rootScope.userModel = {};
+
 		$rootScope.$on('$stateChangeStart', function(event, toState, toParams, fromState, fromParams) {
-			if(fromState.name == 'chatRoom') {
-				// $chatrooms.signout(fromParams.chatroomId, $rootScope.userModel.username);
+			// console.log('state change:', fromState.name);
+			if(fromState.name == 'chatroom') {
+				$chatrooms.signout(fromParams.chatroomId, $rootScope.userModel.username);
+				// console.log('blah');
 			}
 		});
 	}
@@ -58,13 +89,21 @@ p3App.factory('Chatrooms', ['$firebase',
 			},
 
 			signin: function(id, username) {
+				// console.log('signing in');
 				var users = fb_chatroom.$child(id + '/users');
 				users[username] = true;
-				users.$save();
+				users.$save(username);
+
+				var ref = new Firebase("https://glaring-fire-5264.firebaseio.com/chatrooms/" + id + "/users/" + username);
+				ref.onDisconnect().remove();
 			},
 
 			signout: function(id, username) {
+				// console.log('signing out');
 				fb_chatroom.$child(id + '/users').$remove(username);
+
+				var ref = new Firebase("https://glaring-fire-5264.firebaseio.com/chatrooms/" + id + "/users/" + username);
+				ref.onDisconnect().cancel();
 			}
 		};
 
@@ -164,7 +203,7 @@ p3App.controller('AppCtrl', ['$scope',
 		//   $scope.username = "anonymous"+Math.floor(Math.random()*1111);
 		// }
 
-		$scope.userModel = {};
+		// $scope.userModel = {};
 	}
 ]);
 
@@ -174,22 +213,22 @@ p3App.controller('HomeCtrl', ['$scope', 'Chatrooms',
 	}
 ]);
 
-p3App.controller('ChatroomCtrl', ['$scope', '$stateParams', 'Chatrooms', '$window',
-	function($scope, $stateParams, $chatrooms, $window) {
+p3App.controller('ChatroomCtrl', ['$scope', '$stateParams', 'Chatrooms', '$window', '$rootScope',
+	function($scope, $stateParams, $chatrooms, $window, $rootScope) {
 		$scope.chatroomId = $stateParams['chatroomId'];
 		$scope.chatroom = $chatrooms.get($stateParams['chatroomId']);
 
-		while(!$scope.userModel.username) {
-			// $scope.userModel.username = $window.prompt("Please choose a username");
-			$scope.userModel.username = 'david';
+		while(!$rootScope.userModel.username) {
+			$scope.userModel.username = $window.prompt("Please choose a username");
+			// $rootScope.userModel.username = 'david';
 		}
 
-		$chatrooms.signin($scope.chatroomId, $scope.userModel.username);
+		$chatrooms.signin($scope.chatroomId, $rootScope.userModel.username);
 
 		$scope.sendChatMessage = function() {
 			// console.log($scope.chatMessage);
 			if(!$scope.chatMessage || $scope.chatMessage == '') return;
-			$chatrooms.send($scope.chatroomId, $scope.chatMessage, $scope.userModel.username);
+			$chatrooms.send($scope.chatroomId, $scope.chatMessage, $rootScope.userModel.username);
 			$scope.chatMessage = '';
 		};
 	}
