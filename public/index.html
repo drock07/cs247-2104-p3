@@ -25,7 +25,9 @@
                 
             </div>
             <div class="col-md-3">
-                <div chat-video></div>
+                <div chat-video class="chat-video"></div>
+                <button ng-show="currentState.name == 'chatroom'">Record and Send</button>
+                <div>{{currentState}}</div>
             </div>
         </div>
     </div>

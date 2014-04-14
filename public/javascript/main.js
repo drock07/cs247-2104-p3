@@ -105,8 +105,8 @@
     // callback for when we get video stream from user.
     var onMediaSuccess = function(stream) {
       // create video element, attach webcam stream to video element
-      var video_width= 160;
-      var video_height= 120;
+      var video_width= 200;
+      var video_height= 150;
       var webcam_stream = document.getElementById('webcam_stream');
       var video = document.createElement('video');
       webcam_stream.innerHTML = "";

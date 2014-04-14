@@ -23,7 +23,7 @@ p3App.config(['$stateProvider', '$locationProvider', '$urlRouterProvider',
 			})
 			.state("signin", {
 			    url: "/signin",
-			    onEnter: function($stateParams, $state, $modal, $resource) {
+			    onEnter: function($stateParams, $state) {
 			        // $modal.open({
 			        //     templateUrl: "items/add",
 			        //     resolve: {
@@ -138,16 +138,16 @@ p3App.directive('chatVideo', function() {
 
 		    var onMediaSuccess = function(stream) {
 		    	// create video element, attach webcam stream to video element
-			      var video_width= 160;
-			      var video_height= 120;
+			      var video_width= 400;
+			      var video_height= 300;
 			      var webcam_stream = element;
 			      var video = document.createElement('video');
 			      webcam_stream.innerHTML = "";
 			      // adds these properties to the video
 			      video = mergeProps(video, {
 			          controls: false,
-			          width: video_width,
-			          height: video_height,
+			          // width: video_width,
+			          // height: video_height,
 			          src: URL.createObjectURL(stream)
 			      });
 			      video.play();
@@ -196,8 +196,11 @@ p3App.directive('chatVideo', function() {
 	};
 });
 
-p3App.controller('AppCtrl', ['$scope', 
-	function($scope) {
+p3App.controller('AppCtrl', ['$scope', '$state',
+	function($scope, $state) {
+
+		
+
 		// $scope.userModel.username = window.prompt("Welcome, warrior! please declare your name?");
 		// if(!$scope.userModel.username){
 		//   $scope.username = "anonymous"+Math.floor(Math.random()*1111);
@@ -219,8 +222,8 @@ p3App.controller('ChatroomCtrl', ['$scope', '$stateParams', 'Chatrooms', '$windo
 		$scope.chatroom = $chatrooms.get($stateParams['chatroomId']);
 
 		while(!$rootScope.userModel.username) {
-			$scope.userModel.username = $window.prompt("Please choose a username");
-			// $rootScope.userModel.username = 'david';
+			// $scope.userModel.username = $window.prompt("Please choose a username");
+			$rootScope.userModel.username = 'david';
 		}
 
 		$chatrooms.signin($scope.chatroomId, $rootScope.userModel.username);
