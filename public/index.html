@@ -21,13 +21,17 @@
 <body ng-controller="AppCtrl">
     <div class="container-fluid">
         <div class="row">
-            <div class="col-md-9" ui-view>
+            <div class="col-md-9" ui-view="content">
                 
             </div>
             <div class="col-md-3">
-                <div chat-video class="chat-video"></div>
-                <button ng-show="currentState.name == 'chatroom'">Record and Send</button>
-                <div>{{currentState}}</div>
+                <div chat-video class="chat-video" on-data-available="sendEmoticon">
+                    <button ng-show="currentState == 'chatroom'" ng-click="recordVideo()">Record and Send</button>
+                </div>
+
+                <div id="testVid"></div>
+
+                <div ui-view="user-list"></div>
             </div>
         </div>
     </div>

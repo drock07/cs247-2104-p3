@@ -13,13 +13,26 @@ p3App.config(['$stateProvider', '$locationProvider', '$urlRouterProvider',
 		$stateProvider.
 			state('home', {
 				url: '/',
-				templateUrl: '/partials/home.html',
-				controller: 'HomeCtrl'
+				views: {
+					"content" : {
+						templateUrl:'/partials/home.html',
+						controller: 'HomeCtrl'
+					}
+				}
 			})
 			.state('chatroom', {
 				url: '/chatroom/:chatroomId',
-				templateUrl: '/partials/chatroom.html',
-				controller: 'ChatroomCtrl'
+				// controller: 'ChatroomCtrl',
+				views: {
+					"content": {
+						templateUrl: '/partials/chatroom.html',
+						controller: 'ChatroomCtrl'
+					},
+					"user-list": {
+						templateUrl: '/partials/userList.html',
+						controller: 'ChatroomUsersCtrl'
+					}
+				}
 			})
 			.state("signin", {
 			    url: "/signin",
@@ -81,6 +94,10 @@ p3App.factory('Chatrooms', ['$firebase',
 				return fb_chatroom.$child(id);
 			},
 
+			getUsers: function(id) {
+				return fb_chatroom.$child(id + "/users");
+			},
+
 			send: function(id, message, username) {
 				fb_chatroom.$child(id + '/stream').$add({
 					m: message,
@@ -111,6 +128,36 @@ p3App.factory('Chatrooms', ['$firebase',
 	}
 ]);
 
+p3App.factory('Base64Converter', [
+	function() {
+		  // some handy methods for converting blob to base 64 and vice versa
+		  // for performance bench mark, please refer to http://jsperf.com/blob-base64-conversion/5
+		  // note useing String.fromCharCode.apply can cause callstack error
+		return {
+			blobToBase64: function(blob, callback) {
+				var reader = new FileReader();
+				reader.onload = function() {
+					var dataUrl = reader.result;
+					var base64 = dataUrl.split(',')[1];
+					callback(base64);
+				};
+				reader.readAsDataURL(blob);
+			},
+			base64ToBlob: function(base64) {
+				var binary = atob(base64);
+				var len = binary.length;
+				var buffer = new ArrayBuffer(len);
+				var view = new Uint8Array(buffer);
+				for (var i = 0; i < len; i++) {
+					view[i] = binary.charCodeAt(i);
+				}
+				var blob = new Blob([view]);
+				return blob;
+			}
+		};
+	}
+]);
+
 p3App.directive('ngEnter', function () {
 	return function (scope, element, attrs) {
 		element.bind("keydown keypress", function (event) {
@@ -130,28 +177,76 @@ p3App.directive('chatVideo', function() {
 		restrict: 'AE',
 		link: function(scope, element, attrs) {
 
+			scope.mediaRecorder = null;
+
 			// connect to webcam
 			var mediaConstraints = {
 		      video: true,
 		      audio: false
 		    };
 
+		 	scope.recordVideo = function() {
+		 		if(scope.mediaRecorder) {
+		 			scope.mediaRecorder.stop();
+		 			scope.mediaRecorder.start(1000);
+		 		}
+		 	};
+
+		 	scope.sendEmoticon = function(blob) {
+
+
+
+		 		console.log("called!");
+
+		 		// for video element
+		      	var video = document.createElement("video");
+		      	video.autoplay = true;
+		      	video.controls = false; // optional
+		      	video.loop = true;
+		      	video.width = 120;
+
+		      	var source = document.createElement("source");
+		      	source.src =  URL.createObjectURL(blob);
+		      	source.type =  "video/webm";
+
+		      	video.appendChild(source);
+
+		      	// for gif instead, use this code below and change mediaRecorder.mimeType in onMediaSuccess below
+		      	// var video = document.createElement("img");
+		      	// video.src = URL.createObjectURL(base64_to_blob(data.v));
+
+		      	$("#testVid").append(video);
+		 	};
+
 		    var onMediaSuccess = function(stream) {
 		    	// create video element, attach webcam stream to video element
-			      var video_width= 400;
-			      var video_height= 300;
-			      var webcam_stream = element;
 			      var video = document.createElement('video');
-			      webcam_stream.innerHTML = "";
+			      // element.html('');
 			      // adds these properties to the video
 			      video = mergeProps(video, {
 			          controls: false,
-			          // width: video_width,
-			          // height: video_height,
 			          src: URL.createObjectURL(stream)
 			      });
 			      video.play();
-			      webcam_stream.append(video);
+			      element.prepend(video);
+
+			      // now record stream in 5 seconds interval
+			      // var video_container = document.getElementById('video_container');
+			      scope.mediaRecorder = new MediaStreamRecorder(stream);
+			      // var index = 1;
+
+			      scope.mediaRecorder.mimeType = 'video/webm';
+			      // mediaRecorder.mimeType = 'image/gif';
+			      // make recorded media smaller to save some traffic (80 * 60 pixels, 3*24 frames)
+			      scope.mediaRecorder.video_width = 80;
+			      scope.mediaRecorder.video_height = 60;
+
+			      scope.mediaRecorder.ondataavailable = function(blob) {
+			      	// scope.$apply(function() {
+			      		// scope.videoBlob = blob;
+			      		scope.sendEmoticon(blob);
+			      	// });
+			      };
 
 			      // counter
 			      // var time = 0;
@@ -160,16 +255,6 @@ p3App.directive('chatVideo', function() {
 			      //   second_counter.innerHTML = time++;
 			      // },1000);
 
-			      // now record stream in 5 seconds interval
-			      // var video_container = document.getElementById('video_container');
-			      // var mediaRecorder = new MediaStreamRecorder(stream);
-			      // var index = 1;
-
-			      // mediaRecorder.mimeType = 'video/webm';
-			      // mediaRecorder.mimeType = 'image/gif';
-			      // make recorded media smaller to save some traffic (80 * 60 pixels, 3*24 frames)
-			      // mediaRecorder.video_width = video_width/2;
-			      // mediaRecorder.video_height = video_height/2;
 
 			      // mediaRecorder.ondataavailable = function (blob) {
 			      //     //console.log("new data available!");
@@ -199,14 +284,14 @@ p3App.directive('chatVideo', function() {
 p3App.controller('AppCtrl', ['$scope', '$state',
 	function($scope, $state) {
 
-		
+		$scope.$on('$stateChangeSuccess', function(event, toState) {
+			$scope.currentState = toState.name;
+		});
 
 		// $scope.userModel.username = window.prompt("Welcome, warrior! please declare your name?");
 		// if(!$scope.userModel.username){
 		//   $scope.username = "anonymous"+Math.floor(Math.random()*1111);
 		// }
-
-		// $scope.userModel = {};
 	}
 ]);
 
@@ -216,23 +301,30 @@ p3App.controller('HomeCtrl', ['$scope', 'Chatrooms',
 	}
 ]);
 
-p3App.controller('ChatroomCtrl', ['$scope', '$stateParams', 'Chatrooms', '$window', '$rootScope',
-	function($scope, $stateParams, $chatrooms, $window, $rootScope) {
-		$scope.chatroomId = $stateParams['chatroomId'];
+p3App.controller('ChatroomCtrl', ['$scope', '$rootScope', '$stateParams', 'Chatrooms', '$window',
+	function($scope, $rootScope, $stateParams, $chatrooms, $window) {
+		$rootScope.chatroomId = $stateParams['chatroomId'];
 		$scope.chatroom = $chatrooms.get($stateParams['chatroomId']);
+		$scope.users = $chatrooms.getUsers($stateParams['chatroomId']);
 
 		while(!$rootScope.userModel.username) {
 			// $scope.userModel.username = $window.prompt("Please choose a username");
 			$rootScope.userModel.username = 'david';
 		}
 
-		$chatrooms.signin($scope.chatroomId, $rootScope.userModel.username);
+		$chatrooms.signin($rootScope.chatroomId, $rootScope.userModel.username);
 
 		$scope.sendChatMessage = function() {
 			// console.log($scope.chatMessage);
 			if(!$scope.chatMessage || $scope.chatMessage == '') return;
-			$chatrooms.send($scope.chatroomId, $scope.chatMessage, $rootScope.userModel.username);
+			$chatrooms.send($rootScope.chatroomId, $scope.chatMessage, $rootScope.userModel.username);
 			$scope.chatMessage = '';
 		};
+	}
+]);
+
+p3App.controller('ChatroomUsersCtrl', ['$scope', '$stateParams', 'Chatrooms',
+	function($scope, $stateParams, $chatrooms) {
+		$scope.users = $chatrooms.getUsers($stateParams['chatroomId']);
 	}
 ]);

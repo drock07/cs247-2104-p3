@@ -1,5 +1,5 @@
 <div class="row p3-chatroom">
-	<div class="col-xs-12 col-md-9 chat-view">
+	<div class="col-md-12 chat-view">
 
 		<div class="header">
 			<a ui-sref="home">&lt;-- Back</a> Chatroom id: {{ chatroomId }}
@@ -20,9 +20,5 @@
 				<button ng-click="sendChatMessage()">Send</button>
 			</div>
 		</div>
-	</div>
-
-	<div class="visible-md visible-lg col-md-3 ">
-		<p ng-repeat="(user, value) in chatroom.users">{{ user }}</p>
 	</div>
 </div>
