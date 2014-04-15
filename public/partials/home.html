@@ -2,9 +2,15 @@
 	<h1>Chat App</h1>
 	<div class="col-xs-12 col-md-4 col-md-offset-4">
 
+		<button ng-click="makeNewChat()">Start new chat</button>
+
 		<ul>
 			<li ng-repeat="(id, chatroom) in chatrooms">
-				<a ui-sref="chatroom({chatroomId: id})">{{ id }}</a>
+				<a ui-sref="chatroom({chatroomId: id})">
+					{{ id }} - 
+					<span ng-repeat="(user, value) in chatroom.users">{{ user }}, </span>
+					
+				</a>
 			</li>
 		</ul>
 	</div>

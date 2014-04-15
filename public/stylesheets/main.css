@@ -1,1 +1,141 @@
-@import url(http://fonts.googleapis.com/css?family=Cabin+Condensed);html,body{width:100%;height:100%}body{font-family:'Cabin Condensed', sans-serif;font-size:20px;color:#fefefe;background-color:#955ba5}a{color:#fefefe}.container{height:100%}.centered-text{text-align:center}.p3-chatroom{height:100%}.p3-chatroom .chat-view{height:100%;position:relative;overflow:hidden}.p3-chatroom .chat-view .header{height:30px;position:absolute;top:0;left:0;right:0;text-align:center;color:#fefefe;background-color:#955ba5}.p3-chatroom .chat-view .header a{color:#fefefe;float:left}.p3-chatroom .chat-view .stream-wrapper{width:100%;height:100%;padding-top:30px;padding-bottom:100px}.p3-chatroom .chat-view .stream-wrapper .stream{width:100%;height:100%;overflow-y:auto}.p3-chatroom .chat-view .input-area{height:100px;position:absolute;left:0;right:0;bottom:0}.p3-chatroom .chat-view .input-area .input-wrapper{width:100%;height:100%;padding:5px;padding-right:100px}.p3-chatroom .chat-view .input-area .input-wrapper input{width:100%;height:100%;color:#343434;border-radius:8px;border:1px solid #c8c8c8;padding:8px}.p3-chatroom .chat-view .input-area .input-wrapper input:focus{outline:none}.p3-chatroom .chat-view .input-area .button-wrapper{width:100px;height:100%;position:absolute;top:0;right:0;padding:5px}.p3-chatroom .chat-view .input-area .button-wrapper button{width:100%;height:100%;border:none;border-radius:8px;background-color:#4eba6f}.p3-chatroom .chat-view .input-area .button-wrapper button:hover{background-color:#d4d4d4}.p3-chatroom .chat-view .input-area .button-wrapper button:active{background-color:#c8c8c8}.p3-chatroom .chat-view .input-area .button-wrapper button:focus{outline:none}.chat-video video{width:100%}
+@import url(http://fonts.googleapis.com/css?family=Cabin+Condensed);
+/* Variables */
+/* Fonts */
+html, body {
+  width: 100%;
+  height: 100%;
+}
+
+body {
+  font-family: 'Cabin Condensed', sans-serif;
+  font-size: 20px;
+  color: #fefefe;
+  background-color: #955ba5;
+}
+
+a {
+  color: #fefefe;
+}
+
+.left-bar {
+  width: 100%;
+  height: 100%;
+  padding-right: 260px;
+}
+
+.right-bar {
+  width: 250px;
+  height: 100%;
+  float: right;
+}
+
+.centered-text {
+  text-align: center;
+}
+
+.p3-chatroom {
+  height: 100%;
+}
+.p3-chatroom .chat-view {
+  height: 100%;
+  position: relative;
+  overflow: hidden;
+}
+.p3-chatroom .chat-view .header {
+  height: 30px;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  text-align: center;
+  color: #fefefe;
+  background-color: #955ba5;
+}
+.p3-chatroom .chat-view .header a {
+  color: #fefefe;
+  float: left;
+}
+.p3-chatroom .chat-view .stream-wrapper {
+  width: 100%;
+  height: 100%;
+  padding-top: 30px;
+  padding-bottom: 100px;
+}
+.p3-chatroom .chat-view .stream-wrapper .stream {
+  width: 100%;
+  height: 100%;
+  overflow-y: auto;
+}
+.p3-chatroom .chat-view .input-area {
+  height: 100px;
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+}
+.p3-chatroom .chat-view .input-area .input-wrapper {
+  width: 100%;
+  height: 100%;
+  padding: 5px;
+  padding-right: 100px;
+}
+.p3-chatroom .chat-view .input-area .input-wrapper input {
+  width: 100%;
+  height: 100%;
+  color: #343434;
+  border-radius: 8px;
+  border: 1px solid #c8c8c8;
+  padding: 8px;
+}
+.p3-chatroom .chat-view .input-area .input-wrapper input:focus {
+  outline: none;
+}
+.p3-chatroom .chat-view .input-area .button-wrapper {
+  width: 100px;
+  height: 100%;
+  position: absolute;
+  top: 0;
+  right: 0;
+  padding: 5px;
+}
+.p3-chatroom .chat-view .input-area .button-wrapper button {
+  width: 100%;
+  height: 100%;
+  border: none;
+  border-radius: 8px;
+  background-color: #4eba6f;
+}
+.p3-chatroom .chat-view .input-area .button-wrapper button:hover {
+  background-color: #d4d4d4;
+}
+.p3-chatroom .chat-view .input-area .button-wrapper button:active {
+  background-color: #c8c8c8;
+}
+.p3-chatroom .chat-view .input-area .button-wrapper button:focus {
+  outline: none;
+}
+
+.chat-video video {
+  width: 100%;
+}
+
+.emoticon-viewer-wrapper {
+  display: none;
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background-color: rgba(0, 0, 0, 0.2);
+}
+.emoticon-viewer-wrapper #emoticonViewer {
+  width: 90%;
+  height: 90%;
+  position: absolute;
+  top: 5%;
+  left: 5%;
+  margin: auto;
+}
+.emoticon-viewer-wrapper #emoticonViewer video {
+  width: 100%;
+}

@@ -35,8 +35,21 @@ p3App.config(['$stateProvider', '$locationProvider', '$urlRouterProvider',
 				}
 			})
 			.state("signin", {
-			    url: "/signin",
-			    onEnter: function($stateParams, $state) {
+				url: '/signin',
+			    onEnter: function($stateParams, $state, $rootScope, $window) {
+
+			    	$rootScope.userModel.username = $window.prompt("Please choose a username.");
+			    	if(!$rootScope.userModel.username){
+					  $rootScope.userModel.username = "anonymous"+Math.floor(Math.random()*1111);
+					}
+
+					$state.go('home');
+
+			    	// $scope.userModel.username = window.prompt("Welcome, warrior! please declare your name?");
+					// if(!$scope.userModel.username){
+					//   $scope.username = "anonymous"+Math.floor(Math.random()*1111);
+					// }
+
 			        // $modal.open({
 			        //     templateUrl: "items/add",
 			        //     resolve: {
@@ -63,14 +76,23 @@ p3App.config(['$stateProvider', '$locationProvider', '$urlRouterProvider',
 	}
 ]);
 
-p3App.run(['$rootScope', 'Chatrooms',
-	function($rootScope, $chatrooms) {
+p3App.run(['$rootScope', 'Chatrooms', '$state', '$window',
+	function($rootScope, $chatrooms, $state, $window) {
 
 		$rootScope.userModel = {};
 
 		$rootScope.$on('$stateChangeStart', function(event, toState, toParams, fromState, fromParams) {
 			// console.log('state change:', fromState.name);
-			if(fromState.name == 'chatroom') {
+
+			if(!$rootScope.userModel.username) {
+				// event.preventDefault();
+				// $state.go('signin');
+
+				$rootScope.userModel.username = $window.prompt("Please choose a username.");
+		    	if(!$rootScope.userModel.username){
+				  $rootScope.userModel.username = "anonymous"+Math.floor(Math.random()*1111);
+				}
+			} else if(fromState.name == 'chatroom') {
 				$chatrooms.signout(fromParams.chatroomId, $rootScope.userModel.username);
 				// console.log('blah');
 			}
@@ -90,6 +112,10 @@ p3App.factory('Chatrooms', ['$firebase',
 				return fb_chatroom;
 			},
 
+			newRoom: function() {
+				return fb_chatroom.$add({});
+			},
+
 			get: function(id) {
 				return fb_chatroom.$child(id);
 			},
@@ -98,12 +124,23 @@ p3App.factory('Chatrooms', ['$firebase',
 				return fb_chatroom.$child(id + "/users");
 			},
 
+			getEmoticons: function(id) {
+				return fb_chatroom.$child(id + "/emoticons");
+			},
+
 			send: function(id, message, username) {
 				fb_chatroom.$child(id + '/stream').$add({
 					m: message,
 					username: username
 				});
 			},
+
+			sendEmoticon: function(id, username, blob) {
+				fb_chatroom.$child(id + '/stream').$add({
+					username: username,
+					v: blob
+				});
+			},	
 
 			signin: function(id, username) {
 				// console.log('signing in');
@@ -172,7 +209,7 @@ p3App.directive('ngEnter', function () {
 	};
 });
 
-p3App.directive('chatVideo', function() {
+p3App.directive('chatVideo', ['$timeout', '$rootScope', 'Base64Converter', 'Chatrooms', function($timeout, $rootScope, $b64, $chatrooms) {
 	return {
 		restrict: 'AE',
 		link: function(scope, element, attrs) {
@@ -186,36 +223,13 @@ p3App.directive('chatVideo', function() {
 		    };
 
 		 	scope.recordVideo = function() {
-		 		if(scope.mediaRecorder) {
-		 			scope.mediaRecorder.stop();
-		 			scope.mediaRecorder.start(1000);
-		 		}
-		 	};
+		 		$timeout(function() {
 
-		 	scope.sendEmoticon = function(blob) {
+			      	$b64.blobToBase64(scope.curVideoBlob, function(b64Blob) {
+			      		$chatrooms.sendEmoticon($rootScope.chatroomId, $rootScope.userModel.username, b64Blob);
+			      	});
 
-
-
-		 		console.log("called!");
-
-		 		// for video element
-		      	var video = document.createElement("video");
-		      	video.autoplay = true;
-		      	video.controls = false; // optional
-		      	video.loop = true;
-		      	video.width = 120;
-
-		      	var source = document.createElement("source");
-		      	source.src =  URL.createObjectURL(blob);
-		      	source.type =  "video/webm";
-
-		      	video.appendChild(source);
-
-		      	// for gif instead, use this code below and change mediaRecorder.mimeType in onMediaSuccess below
-		      	// var video = document.createElement("img");
-		      	// video.src = URL.createObjectURL(base64_to_blob(data.v));
-
-		      	$("#testVid").append(video);
+		 		}, 1500);
 		 	};
 
 		    var onMediaSuccess = function(stream) {
@@ -244,7 +258,10 @@ p3App.directive('chatVideo', function() {
 			      scope.mediaRecorder.ondataavailable = function(blob) {
 			      	// scope.$apply(function() {
 			      		// scope.videoBlob = blob;
-			      		scope.sendEmoticon(blob);
+			      		// scope.sendEmoticon(blob);
+
+			      		scope.curVideoBlob = blob;
+
 			      	// });
 			      };
 
@@ -265,10 +282,10 @@ p3App.directive('chatVideo', function() {
 			      //       cur_video_blob = b64_data;
 			      //     });
 			      // };
-			      // setInterval( function() {
-			      //   mediaRecorder.stop();
-			      //   mediaRecorder.start(3000);
-			      // }, 3000 );
+			      setInterval( function() {
+			        scope.mediaRecorder.stop();
+			        scope.mediaRecorder.start(1500);
+			      }, 1500 );
 			      console.log("connect to media stream!");
 		    };
 
@@ -279,7 +296,7 @@ p3App.directive('chatVideo', function() {
 			navigator.getUserMedia(mediaConstraints, onMediaSuccess, onMediaError);
 		}
 	};
-});
+}]);
 
 p3App.controller('AppCtrl', ['$scope', '$state',
 	function($scope, $state) {
@@ -295,22 +312,27 @@ p3App.controller('AppCtrl', ['$scope', '$state',
 	}
 ]);
 
-p3App.controller('HomeCtrl', ['$scope', 'Chatrooms',
-	function($scope, $chatrooms) {
+p3App.controller('HomeCtrl', ['$scope', '$state', 'Chatrooms',
+	function($scope, $state, $chatrooms) {
 		$scope.chatrooms = $chatrooms.list();
+
+		$scope.makeNewChat = function() {
+			var ref = $chatrooms.newRoom();
+			$state.go('chatroom', {chatroomId: ref.name()});
+		};
 	}
 ]);
 
-p3App.controller('ChatroomCtrl', ['$scope', '$rootScope', '$stateParams', 'Chatrooms', '$window',
-	function($scope, $rootScope, $stateParams, $chatrooms, $window) {
+p3App.controller('ChatroomCtrl', ['$scope', '$rootScope', '$stateParams', 'Chatrooms', '$window', 'Base64Converter',
+	function($scope, $rootScope, $stateParams, $chatrooms, $window, $b64) {
 		$rootScope.chatroomId = $stateParams['chatroomId'];
 		$scope.chatroom = $chatrooms.get($stateParams['chatroomId']);
 		$scope.users = $chatrooms.getUsers($stateParams['chatroomId']);
 
-		while(!$rootScope.userModel.username) {
-			// $scope.userModel.username = $window.prompt("Please choose a username");
-			$rootScope.userModel.username = 'david';
-		}
+		// while(!$rootScope.userModel.username) {
+		// 	// $scope.userModel.username = $window.prompt("Please choose a username");
+		// 	$rootScope.userModel.username = 'david';
+		// }
 
 		$chatrooms.signin($rootScope.chatroomId, $rootScope.userModel.username);
 
@@ -320,6 +342,57 @@ p3App.controller('ChatroomCtrl', ['$scope', '$rootScope', '$stateParams', 'Chatr
 			$chatrooms.send($rootScope.chatroomId, $scope.chatMessage, $rootScope.userModel.username);
 			$scope.chatMessage = '';
 		};
+
+		var ref = new Firebase("https://glaring-fire-5264.firebaseio.com/chatrooms/" + $rootScope.chatroomId + "/stream");
+		ref.on('child_added', function (snapshot) {
+
+			var data = snapshot.val();
+
+			if(data.m) {
+		    	$("#chatStream").append("<p>"+data.username + ": " + data.m+"</p>");
+			} else if(data.v){
+		      // for video element
+		      var video = document.createElement("video");
+		      video.autoplay = true;
+		      video.controls = false; // optional
+		      video.loop = true;
+		      video.width = 120;
+
+		      var source = document.createElement("source");
+		      source.src =  URL.createObjectURL($b64.base64ToBlob(data.v));
+		      source.type =  "video/webm";
+
+		      video.appendChild(source);
+
+		      // for gif instead, use this code below and change mediaRecorder.mimeType in onMediaSuccess below
+		      // var video = document.createElement("img");
+		      // video.src = URL.createObjectURL(base64_to_blob(data.v));
+		      $("#chatStream").append("<p>"+data.username + ":</p>");
+		      document.getElementById("chatStream").appendChild(video);
+		    }
+
+
+
+
+			// var data = snapshot.val();
+
+			// var video = document.createElement("video");
+	  //     	video.autoplay = true;
+	  //     	video.controls = false; // optional
+	  //     	video.loop = true;
+
+	  //     	var source = document.createElement("source");
+	  //     	source.src =  URL.createObjectURL($b64.base64ToBlob(data.v));
+	  //     	source.type =  "video/webm";
+
+	  //     	video.appendChild(source);
+
+	      	// for gif instead, use this code below and change mediaRecorder.mimeType in onMediaSuccess below
+	      	// var video = document.createElement("img");
+	      	// video.src = URL.createObjectURL(base64_to_blob(data.v));
+
+	      	// $("#emoticonViewer").html(video);
+		});
 	}
 ]);
 

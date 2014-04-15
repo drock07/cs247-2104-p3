@@ -19,21 +19,17 @@
     <script src='/javascript/app.js'></script>
 </head>
 <body ng-controller="AppCtrl">
-    <div class="container-fluid">
-        <div class="row">
-            <div class="col-md-9" ui-view="content">
-                
+        <div class="right-bar">
+            <div chat-video class="chat-video" on-data-available="sendEmoticon">
+                <button ng-show="currentState == 'chatroom'" ng-click="recordVideo()">Record and Send</button>
             </div>
-            <div class="col-md-3">
-                <div chat-video class="chat-video" on-data-available="sendEmoticon">
-                    <button ng-show="currentState == 'chatroom'" ng-click="recordVideo()">Record and Send</button>
-                </div>
 
-                <div id="testVid"></div>
+            <div id="testVid"></div>
 
-                <div ui-view="user-list"></div>
-            </div>
+            <div ui-view="user-list"></div>
         </div>
-    </div>
+        <div class="left-bar" ui-view="content">
+            
+        </div>
 </body>
 </html>

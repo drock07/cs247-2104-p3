@@ -1,13 +1,13 @@
-<div class="row p3-chatroom">
-	<div class="col-md-12 chat-view">
+<div class="p3-chatroom">
+	<div class="chat-view">
 
 		<div class="header">
 			<a ui-sref="home">&lt;-- Back</a> Chatroom id: {{ chatroomId }}
 		</div>
 
 		<div class="stream-wrapper">
-			<div class="stream">
-				<p ng-repeat="message in chatroom.stream">{{ message.username }}: {{ message.m }}</p>
+			<div id="chatStream" class="stream">
+				<!-- <p ng-repeat="message in chatroom.stream">{{ message.username }}: {{ message.m }}</p> -->
 			</div>
 		</div>
 
@@ -20,5 +20,11 @@
 				<button ng-click="sendChatMessage()">Send</button>
 			</div>
 		</div>
+	</div>
+</div>
+
+<div class="emoticon-viewer-wrapper">
+	<div id="emoticonViewer">
+		
 	</div>
 </div>
